@@ -13,10 +13,12 @@ struct RemarkBottomSheetView: View {
     @Environment(\.modelContext) private var context
     let lat: Double
     let long: Double
+    @State var address: String?
     @State var remarks: String = ""
     var body: some View {
         NavigationView {
             VStack {
+                Text(address ?? "Finding Address")
                 TextField("Enter your remarks", text: $remarks)
                     .padding()
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -32,14 +34,6 @@ struct RemarkBottomSheetView: View {
                 } label: {
                     Text("Save")
                 }
-                Button {
-                    let pin = Pin(lat: lat, long: long, remark: remarks)
-                    context.insert(pin)
-                    presentationMode.wrappedValue.dismiss()
-                } label: {
-                    Text("Delete")
-                }
-
             }
             .navigationBarTitle("Remarks", displayMode: .inline)
             .navigationBarItems(trailing: Button(action: {
@@ -48,6 +42,11 @@ struct RemarkBottomSheetView: View {
                 Text("Cancel")
                     .foregroundColor(.blue)
             })
+        }
+        .onAppear {
+            LocationManager.instance.getAddressFromCoordinates(latitude: lat, longitude: long) { address in
+                self.address = address
+            }
         }
     }
 }

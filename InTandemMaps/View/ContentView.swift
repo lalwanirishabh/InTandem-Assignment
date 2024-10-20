@@ -29,6 +29,7 @@ class Pin {
 
 struct ContentView: View {
     @Environment(\.modelContext) private var context
+    @ObservedObject var locationManager = LocationManager.instance
     @State var showRemarksBottomSheet: Bool = false
     @State var showSidebar = false
 //    @State var showEditRemarksBottomSheet: Bool = false
@@ -73,6 +74,21 @@ struct ContentView: View {
             },
             alignment: .topTrailing
         )
+        .overlay(
+            Button(action: {
+                if let lat = locationManager.lat, let long = locationManager.long {
+                    withAnimation {
+                        self.center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: lat, longitude: long), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
+                    }
+                }
+            }) {
+                Image(systemName: "location")
+            },
+            alignment: .topLeading
+        )
+        .onAppear {
+            locationManager.requestAuthorization()
+        }
     }
 }
 

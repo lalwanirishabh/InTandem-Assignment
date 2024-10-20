@@ -33,10 +33,11 @@ struct ContentView: View {
     @Query var pins: [Pin]
     @State var lat : Double = 0.0
     @State var long : Double = 0.0
+    @State private var center: MapCameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 40, longitude: 40), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
     var body: some View {
         ZStack {
             MapReader { reader in
-                Map() {
+                Map(position: $center) {
                     ForEach(pins) { pin in
                         Annotation(pin.remark, coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long)) {
                             Image(systemName: "pin.fill")
@@ -57,7 +58,7 @@ struct ContentView: View {
             }
             HStack {
                 Spacer()
-                SavedPinsView()
+                SavedPinsView(showMenu: $showSidebar, center: $center)
                     .frame(width: UIScreen.main.bounds.width * 0.75) // Sidebar width
                     .background(Color.gray)
                     .offset(x: showSidebar ? 0 : UIScreen.main.bounds.width)

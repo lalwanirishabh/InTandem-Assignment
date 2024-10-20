@@ -7,16 +7,27 @@
 
 import SwiftUI
 import SwiftData
+import MapKit
 
 struct SavedPinsView: View {
     @Environment(\.modelContext) private var context
+    @Binding var showMenu: Bool
+    @Binding var center: MapCameraPosition
     @Query var pins: [Pin]
     var body: some View {
         NavigationView {
             VStack {
                 List {
                     ForEach(pins) { pin in
-                        Text(pin.remark)
+                        Button(action: {
+                            withAnimation {
+                                center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
+                            }
+                            showMenu = false;
+                        }, label: {
+                            Text(pin.remark)
+                        })
+                            
                     }
                 }
             }
@@ -27,5 +38,5 @@ struct SavedPinsView: View {
 }
 
 #Preview {
-    SavedPinsView()
+    SavedPinsView(showMenu: .constant(true), center: .constant(.region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 40, longitude: 40), span: MKCoordinateSpan(latitudeDelta: 0.25, longitudeDelta: 0.25)))))
 }

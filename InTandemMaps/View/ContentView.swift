@@ -32,11 +32,10 @@ struct ContentView: View {
     @ObservedObject var locationManager = LocationManager.instance
     @State var showRemarksBottomSheet: Bool = false
     @State var showSidebar = false
-//    @State var showEditRemarksBottomSheet: Bool = false
     @Query var pins: [Pin]
     @State var lat : Double = 0.0
     @State var long : Double = 0.0
-    @State private var center: MapCameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 40, longitude: 40), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
+    @State private var center: MapCameraPosition = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 28.4595, longitude: 77.0266), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)))
     var body: some View {
         ZStack {
             MapReader { reader in
@@ -46,6 +45,13 @@ struct ContentView: View {
                             Image(systemName: "pin.fill")
                         }
                     }
+                    if let latitude = locationManager.lat, let longitude = locationManager.long {
+                            // Create a current location annotation
+                            Annotation("", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)) {
+                                CurrentLocationPin()
+                                    .frame(width: 30, height: 30)
+                            }
+                        }
                 }
                 .onTapGesture(perform: { screenCoord in
                     let location = reader.convert(screenCoord, from: .local)
@@ -55,9 +61,6 @@ struct ContentView: View {
                         self.showRemarksBottomSheet = true
                     }
                 })
-                .sheet(isPresented: $showRemarksBottomSheet) {
-                    RemarkBottomSheetView(lat: lat, long: long)
-                }
             }
             HStack {
                 Spacer()
@@ -69,25 +72,48 @@ struct ContentView: View {
             }
         }
         .overlay (
-            Button(action: { self.showSidebar.toggle() }) {
-                Image(systemName: showSidebar ? "xmark.circle" : "list.bullet")
-            },
-            alignment: .topTrailing
-        )
-        .overlay(
-            Button(action: {
-                if let lat = locationManager.lat, let long = locationManager.long {
+            VStack {
+                Button(action: {
                     withAnimation {
-                        self.center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: lat, longitude: long), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
+                        self.showSidebar.toggle()
+                    }
+                }) {
+                    Image(systemName: showSidebar ? "xmark.circle" : "list.bullet")
+                        .font(.system(size: 20))
+                        .padding(.all, 10)
+                }
+                if !showSidebar {
+                    Button(action: {
+                        if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
+                            if let lat = locationManager.lat, let long = locationManager.long {
+                                withAnimation {
+                                    self.center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: lat, longitude: long), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)))
+                                }
+                            }
+                        } else {
+                            locationManager.requestAuthorization()
+                        }
+                    }) {
+                        Image(systemName: "location")
+                            .font(.system(size: 20))
+                            .padding(.all, 10)
                     }
                 }
-            }) {
-                Image(systemName: "location")
-            },
-            alignment: .topLeading
+            }
+                .background(Color.white)
+                .cornerRadius(10)
+                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Shadow for elevation
+                .padding(.trailing, 20)
+                .padding(.top, 10)
+            ,
+            alignment: .topTrailing
         )
         .onAppear {
             locationManager.requestAuthorization()
+        }
+        .sheet(isPresented: $showRemarksBottomSheet) {
+            RemarkBottomSheetView(lat: lat, long: long, showRemarksBottomSheetView: $showRemarksBottomSheet)
+                .presentationDetents([.medium])
         }
     }
 }

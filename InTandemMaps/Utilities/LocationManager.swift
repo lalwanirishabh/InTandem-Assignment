@@ -62,14 +62,22 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 completion("No placemark found")
                 return
             }
-            
-            let city = placemark.locality ?? "Unknown City"
-            let country = placemark.country ?? "Unknown Country"
-            let stateAbbreviation = placemark.administrativeArea ?? "Unknown State"
-            let street = placemark.thoroughfare ?? "Unknown Street"
-            let zipCode = placemark.postalCode ?? "Unknown Zip"
-            
-            let address = "\(street), \(city), \(stateAbbreviation), \(country), \(zipCode)"
+            var address = ""
+            if placemark.thoroughfare != nil {
+                address += placemark.thoroughfare! + ", "
+            }
+            if placemark.locality != nil {
+                address += placemark.locality! + ", "
+            }
+            if placemark.administrativeArea != nil {
+                address += placemark.administrativeArea! + ", "
+            }
+            if placemark.country != nil {
+                address += placemark.country! + ", "
+            }
+            if placemark.postalCode != nil {
+                address += placemark.postalCode!
+            }
             completion(address)
         }
     }

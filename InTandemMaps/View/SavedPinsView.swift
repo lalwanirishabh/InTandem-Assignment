@@ -21,7 +21,7 @@ struct SavedPinsView: View {
                     ForEach(pins) { pin in
                         Button(action: {
                             withAnimation {
-                                center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5)))
+                                center = .region(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long), span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)))
                             }
                             showMenu = false;
                         }, label: {

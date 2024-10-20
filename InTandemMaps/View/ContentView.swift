@@ -28,24 +28,48 @@ class Pin {
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     @State var showRemarksBottomSheet: Bool = false
+    @State var showSidebar = false
+//    @State var showEditRemarksBottomSheet: Bool = false
     @Query var pins: [Pin]
+    @State var lat : Double = 0.0
+    @State var long : Double = 0.0
     var body: some View {
-        MapReader { reader in
-            Map() {
-                ForEach(pins) { pin in
-                    Annotation("remarks", coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long)) {
-                        Image(systemName: "pin.fill")
+        ZStack {
+            MapReader { reader in
+                Map() {
+                    ForEach(pins) { pin in
+                        Annotation(pin.remark, coordinate: CLLocationCoordinate2D(latitude: pin.lat, longitude: pin.long)) {
+                            Image(systemName: "pin.fill")
+                        }
                     }
                 }
-            }
-            .onTapGesture(perform: { screenCoord in
-                let location = reader.convert(screenCoord, from: .local)
-                if let lat = location?.latitude, let long = location?.longitude {
-                    let pin = Pin(lat: lat, long: long, remark: "")
-                    context.insert(pin)
+                .onTapGesture(perform: { screenCoord in
+                    let location = reader.convert(screenCoord, from: .local)
+                    if let latitude = location?.latitude, let longitude = location?.longitude {
+                        self.lat = latitude
+                        self.long = longitude
+                        self.showRemarksBottomSheet = true
+                    }
+                })
+                .sheet(isPresented: $showRemarksBottomSheet) {
+                    RemarkBottomSheetView(lat: lat, long: long)
                 }
-            })
+            }
+            HStack {
+                Spacer()
+                SavedPinsView()
+                    .frame(width: UIScreen.main.bounds.width * 0.75) // Sidebar width
+                    .background(Color.gray)
+                    .offset(x: showSidebar ? 0 : UIScreen.main.bounds.width)
+                    .animation(.default, value: showSidebar)
+            }
         }
+        .overlay (
+            Button(action: { self.showSidebar.toggle() }) {
+                Image(systemName: showSidebar ? "xmark.circle" : "list.bullet")
+            },
+            alignment: .topTrailing
+        )
     }
 }
 

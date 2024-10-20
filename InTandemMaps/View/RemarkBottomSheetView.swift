@@ -13,12 +13,12 @@ struct RemarkBottomSheetView: View {
     @Environment(\.modelContext) private var context
     let lat: Double
     let long: Double
-    @State var address: String?
+    @State var address: String = ""
     @State var remarks: String = ""
     var body: some View {
         NavigationView {
             VStack {
-                Text(address ?? "Finding Address")
+                Text(address)
                 TextField("Enter your remarks", text: $remarks)
                     .padding()
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -26,7 +26,7 @@ struct RemarkBottomSheetView: View {
                     .textInputAutocapitalization(.never)
                     .padding(.horizontal)
                 Button {
-                    let pin = Pin(lat: lat, long: long, remark: remarks)
+                    let pin = Pin(lat: lat, long: long, remark: remarks, address: address)
                     context.insert(pin)
                     try? context.save()
                     print("saved pin \(pin)")

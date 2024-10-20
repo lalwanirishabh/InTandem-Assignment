@@ -26,10 +26,21 @@ struct SavedPinsView: View {
                             showMenu = false;
                         }, label: {
                             Text(pin.remark)
+                                .font(.headline)
+                            Text(pin.address)
+                                .font(.subheadline)
                         })
                             
                     }
                 }
+                Button(action: {
+                    for pin in pins {
+                        context.delete(pin)
+                        try? context.save()
+                    }
+                }, label: {
+                    Text("Delete All")
+                })
             }
             .navigationTitle("Saved Pins")
             .toolbarTitleDisplayMode(.inline)

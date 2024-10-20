@@ -15,12 +15,14 @@ class Pin {
     var lat: Double
     var long: Double
     var remark: String
+    var address: String
     
-    init(lat: Double, long: Double, remark: String) {
+    init(lat: Double, long: Double, remark: String, address: String) {
         self.id = UUID()
         self.lat = lat
         self.long = long
         self.remark = remark
+        self.address = address
     }
     
 }
@@ -59,7 +61,7 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 SavedPinsView(showMenu: $showSidebar, center: $center)
-                    .frame(width: UIScreen.main.bounds.width * 0.75) // Sidebar width
+                    .frame(width: UIScreen.main.bounds.width * 0.75)
                     .background(Color.gray)
                     .offset(x: showSidebar ? 0 : UIScreen.main.bounds.width)
                     .animation(.default, value: showSidebar)
